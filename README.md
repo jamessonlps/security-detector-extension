@@ -1,4 +1,4 @@
-# James Sceurity - Firefox Extension
+# James Security - Firefox Extension
 
 ![James Security Logo](icons/biscoitos.png)
 
