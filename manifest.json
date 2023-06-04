@@ -10,6 +10,7 @@
   },
   "manifest_version": 2,
   "name": "James Security",
+  "description": "This project is about a Firefox browser plugin to detect the amount of cookies, web storage, and third-party domain connections.",
   "version": "1.0",
   "permissions": [
     "cookies",
@@ -20,7 +21,8 @@
     "notifications",
     "activeTab",
     "contextMenus",
-    "webRequest"
+    "webRequest",
+    "webRequestBlocking"
   ],
   "background": {
     "scripts": [

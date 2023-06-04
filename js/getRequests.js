@@ -1,14 +1,29 @@
-var requests = [];
+const requests = {};
 
-function addRequest(details) {
-  requests.push(details);
+function addRequest(tabId, details) {
+  if (!requests[tabId]) {
+    requests[tabId] = [];
+  }
+  requests[tabId].push(details);
 }
 
-function getRequests() {
-  return requests;
+function getRequests(tabId) {
+  return requests[tabId] || [];
+}
+
+function clearRequests(tabId) {
+  delete requests[tabId];
 }
 
 browser.webRequest.onBeforeRequest.addListener(
-  addRequest,
-  { "urls": ["<all_urls>"] }
+  function (details) {
+    var tabId = details.tabId.toString();
+    addRequest(tabId, details);
+  },
+  { urls: ["<all_urls>"] },
+  ["blocking"]
 );
+
+browser.tabs.onRemoved.addListener(function (tabId) {
+  clearRequests(tabId);
+});

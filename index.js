@@ -2,14 +2,17 @@ async function getCookiesForTab(tabs) {
   let tab = tabs.pop();
 
   let currentTab = document.getElementById('cookies-list');
-  let gettingAllCookies = browser.cookies.getAll({});
+  let getAllCookies = browser.cookies.getAll({
+    url: tab.url
+  });
+
   let cookiesScore;
   let firstPartCookies = 0;
   let sessionCookies = 0;
   let secureNumberOfCookies = 0;
   let cookiesAmount = 0;
 
-  await gettingAllCookies.then((cookies) => {
+  await getAllCookies.then((cookies) => {
     cookiesAmount = cookies.length;
 
     if (cookiesAmount > 0) {
@@ -27,12 +30,15 @@ async function getCookiesForTab(tabs) {
     }
 
     cookiesScore = cookies.length > 0 ? secureNumberOfCookies / cookiesAmount : 0.5;
+  }).catch((error) => {
+    let text = document.createTextNode(`Não foi possível obter os cookies desta página.`);
+    currentTab.appendChild(text);
   });
 
   let textFirstParty = document.createTextNode(`First-party cookies: ${firstPartCookies}`);
   let textThirdParty = document.createTextNode(`Third-party cookies: ${cookiesAmount - firstPartCookies}`);
-  let textSession = document.createTextNode(`Session cookies: ${sessionCookies}`);
-  let textNavigation = document.createTextNode(`Navigation cookies: ${cookiesAmount - sessionCookies}`);
+  let textSession = document.createTextNode(`Cookies de sessão: ${sessionCookies}`);
+  let textNavigation = document.createTextNode(`Cookies de navegação: ${cookiesAmount - sessionCookies}`);
 
   currentTab.appendChild(textFirstParty);
   currentTab.appendChild(document.createElement('br'));
@@ -82,11 +88,13 @@ async function getLocalStorageForTab(storage) {
 }
 
 
-async function getThirdPartyConnectionsForTab() {
-  let requests = browser
+async function getThirdPartyConnectionsForTab(tabs) {
+  let tab = tabs.pop();
+
+  let requests = await browser
     .extension
     .getBackgroundPage()
-    .getRequests();
+    .getRequests(tab.id.toString());
 
   let currentTab = document.getElementById('third-party-info');
   let thirdPartyRequests = 0;
@@ -95,8 +103,7 @@ async function getThirdPartyConnectionsForTab() {
   if (requestsAmount > 0) {
     let uiElement = document.createElement('ul');
 
-    for (let i in requests) {
-      let request = requests[i];
+    for (let request of requests) {
       thirdPartyRequests += (request.thirdParty === true);
 
       if (request.thirdParty === true) {
@@ -117,9 +124,17 @@ async function getThirdPartyConnectionsForTab() {
 }
 
 
-function calculateGlobalScore(cookiesScore, storageScore, connectionScore) {
+function calculateGlobalScore(cookiesScore, storageScore, connectionScore, hasHttps) {
   let currentTab = document.getElementById('average-score');
-  let averageScore = Math.pow(cookiesScore * cookiesScore * storageScore * storageScore * connectionScore, 1 / 5);
+
+  if (!hasHttps) {
+    currentTab.style.color = 'red';
+    let text = document.createTextNode(`Site inseguro - Conexão não criptografada!`);
+    currentTab.appendChild(text);
+    return;
+  }
+
+  let averageScore = (cookiesScore + storageScore + connectionScore) / 3;
 
   if (averageScore <= 0.2) {
     currentTab.style.color = 'red';
@@ -140,6 +155,7 @@ function calculateGlobalScore(cookiesScore, storageScore, connectionScore) {
   let text = document.createTextNode(`Pontuação: ${averageScore.toFixed(2)}`);
   currentTab.appendChild(text);
 }
+
 
 async function getHttpsForTab(tabs) {
   let tab = tabs.pop();
@@ -165,7 +181,7 @@ async function getHttpsForTab(tabs) {
     currentTab.appendChild(text);
   }
 
-  return hasHttps ? 1.0 : 0.0;
+  return hasHttps;
 }
 
 
@@ -178,9 +194,9 @@ async function execute() {
   let cookiesScore = await getCookiesForTab(await getCurrentTab());
   let storage = await browser.tabs.executeScript({ file: "js/getLocalStorage.js" });
   let storageScore = await getLocalStorageForTab(storage[0]);
-  let connectionScore = await getThirdPartyConnectionsForTab();
+  let connectionScore = await getThirdPartyConnectionsForTab(await getCurrentTab());
 
-  calculateGlobalScore(cookiesScore, storageScore, connectionScore);
+  calculateGlobalScore(cookiesScore, storageScore, connectionScore, hasHttps);
 }
 
 execute();

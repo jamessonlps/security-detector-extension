@@ -1,7 +1,7 @@
 html,
 body {
   width: 500px;
-  background-color: #525252;
+  background-color: #f4f4f4;
 }
 
 li,
@@ -10,13 +10,13 @@ ul {
 }
 
 summary {
-  color: #FFFFFF;
+  color: #0f0f0f;
   font-size: 1.5rem;
 }
 
 summary:hover {
   cursor: pointer;
-  color: #FFFFFFAA;
+  color: #696969aa;
 }
 
 .main {
@@ -28,7 +28,7 @@ summary:hover {
 .divider {
   width: 100%;
   height: 1px;
-  background-color: #FFFFFF;
+  background-color: #0f0f0f;
   margin: 1rem 0;
 }
 
@@ -41,6 +41,6 @@ summary:hover {
   flex-direction: column;
   justify-content: center;
   align-items: baseline;
-  color: #FFFFFF;
+  color: #0f0f0f;
   font-size: 1.5rem;
 }
