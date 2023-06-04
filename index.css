@@ -1,0 +1,46 @@
+html,
+body {
+  width: 500px;
+  background-color: #525252;
+}
+
+li,
+ul {
+  margin: 0;
+}
+
+summary {
+  color: #FFFFFF;
+  font-size: 1.5rem;
+}
+
+summary:hover {
+  cursor: pointer;
+  color: #FFFFFFAA;
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background-color: #FFFFFF;
+  margin: 1rem 0;
+}
+
+.item-list-header {
+  margin: 0;
+}
+
+.main-block {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: baseline;
+  color: #FFFFFF;
+  font-size: 1.5rem;
+}
